@@ -2,10 +2,10 @@ package borakdmytro.invoker;
 
 import borakdmytro.command.Command;
 import borakdmytro.receiver.Receiver;
+import borakdmytro.util.MenuInputReader;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 /**
  * Stores menu items. Extends {@link MenuItem} so that you can create submenus.
@@ -19,7 +19,7 @@ public class Menu extends MenuItem {
     }
 
     /**
-     * Shows all available menu items. in infinite loop shows the start menu after the action is finished.
+     * Shows all available menu items. In infinite loop shows the start menu after the action is finished.
      */
     public void show() {
         while (true) {
@@ -41,7 +41,7 @@ public class Menu extends MenuItem {
             sb.append(menuItem.getText());
         }
         System.out.println(sb);
-        int choice = MenuIO.readNumberFromConsole() - 1; // todo check bounds
+        int choice = MenuInputReader.readInteger(1, menuItems.size()) - 1;
         MenuItem menuItem = menuItems.get(choice);
         menuItem.doAction();
     }
@@ -108,7 +108,7 @@ public class Menu extends MenuItem {
 
         /**
          * {@link Menu.MenuBuilder#returnBackMenuItem} and {@link Menu.MenuBuilder#exitMenuItem} are in the end of menu.
-         * @return created Menu.
+         * @return created {@link Menu}.
          */
         @Override
         public Menu build() {
@@ -120,31 +120,6 @@ public class Menu extends MenuItem {
             }
             menuItems.forEach(menuItem -> menuItem.setReceiver(app));
             return new Menu(title, app, menuItems);
-        }
-    }
-
-    /**
-     * Reads data from console.
-     */
-    private static class MenuIO { // todo different types and sources
-        public static int readNumberFromConsole() {
-            Scanner scanner = new Scanner(System.in);
-            while (true) {
-                System.out.print(">>> ");
-                String input = scanner.nextLine();
-                try {
-                    return Integer.parseInt(input);
-                } catch (NumberFormatException e) {
-                    System.out.println("\n Введіть число");
-                }
-            }
-        }
-
-        public static String readStringFromConsole() {
-            Scanner scanner = new Scanner(System.in);
-            System.out.print(">>> ");
-            String input = scanner.nextLine();
-            return String.valueOf(input);
         }
     }
 
