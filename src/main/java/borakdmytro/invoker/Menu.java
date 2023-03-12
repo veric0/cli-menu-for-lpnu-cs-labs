@@ -12,10 +12,12 @@ import java.util.List;
  */
 public class Menu extends MenuItem {
     private final List<MenuItem> menuItems;
+    private final String title;
 
-    private Menu(String title, Receiver app, List<MenuItem> menuItems) {
-        super(title, app, null);
+    private Menu(String title, String text, Receiver app, List<MenuItem> menuItems) {
+        super(text, app, null);
         this.menuItems = menuItems;
+        this.title = title;
     }
 
     /**
@@ -27,6 +29,10 @@ public class Menu extends MenuItem {
         }
     }
 
+    public String getTitle() {
+        return title;
+    }
+
     /**
      * Prints all available menu items. Calls next selected by the user {@link MenuItem}.
      */
@@ -34,7 +40,7 @@ public class Menu extends MenuItem {
     protected void doAction() {
 //        super.doAction(); // todo additional action in submenu
         StringBuilder sb = new StringBuilder();
-        sb.append("\n ").append(getText()).append(":");
+        sb.append("\n ").append(getTitle()).append(":");
         int i = 0;
         for (MenuItem menuItem: menuItems) {
             sb.append("\n ").append(++i).append(" - ");
@@ -52,6 +58,7 @@ public class Menu extends MenuItem {
 
     public static class MenuBuilder extends MenuItemBuilder {
         private String title;
+        private String text;
         private final List<MenuItem> menuItems;
         private Receiver app;
         private boolean isReturnBackMenu;
@@ -59,24 +66,27 @@ public class Menu extends MenuItem {
 
         private MenuBuilder() {
             this.title = "Choose menu item";
+            this.text = "Submenu";
             this.menuItems = new ArrayList<>();
             this.app = null;
             this.isReturnBackMenu = false;
             this.isExitMenu = false;
         }
 
-        private static final MenuItem returnBackMenuItem = MenuItem.builder()
-                .setText("Return back")
-                .setAction(new ReturnBackCommand())
-                .build();
-        private static final MenuItem exitMenuItem = MenuItem.builder()
-                .setText("Exit")
-                .setAction(new ExitCommand())
-                .build();
-
-        @Override
-        public MenuBuilder setText(String title) {
+        /**
+         * @param title title of menu
+         */
+        public MenuBuilder setTitle(String title) {
             this.title = title;
+            return this;
+        }
+
+        /**
+         * @param text text where this menu is submenu
+         */
+        @Override
+        public MenuBuilder setText(String text) {
+            this.text = text;
             return this;
         }
 
@@ -107,26 +117,41 @@ public class Menu extends MenuItem {
         }
 
         /**
-         * {@link Menu.MenuBuilder#returnBackMenuItem} and {@link Menu.MenuBuilder#exitMenuItem} are in the end of menu.
+         * "return to previous menu" and "exit program" are in the end of menu.
          * @return created {@link Menu}.
          */
         @Override
         public Menu build() {
+            Menu menu = new Menu(title, text, app, menuItems);
             if (isReturnBackMenu) {
+                MenuItem returnBackMenuItem = MenuItem.builder()
+                        .setText("Return back")
+                        .setAction(new ReturnBackCommand(menu)) // todo return back
+                        .build();
                 menuItems.add(returnBackMenuItem);
             }
             if (isExitMenu) {
+                MenuItem exitMenuItem = MenuItem.builder()
+                    .setText("Exit")
+                    .setAction(new ExitCommand())
+                    .build();
                 menuItems.add(exitMenuItem);
             }
             menuItems.forEach(menuItem -> menuItem.setReceiver(app));
-            return new Menu(title, app, menuItems);
+            return menu;
         }
     }
 
     private static class ReturnBackCommand implements Command {
+        private final Menu prevMenu;
+        public ReturnBackCommand(Menu prevMenu) {
+            this.prevMenu = prevMenu;
+        }
+
         @Override
         public void execute(Receiver app) {
             System.out.println("ReturnBackCommand"); // todo ReturnBackCommand
+            prevMenu.doAction();
         }
     }
 
