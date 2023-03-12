@@ -31,12 +31,12 @@ public class MenuInputReader {
     /**
      * reads and returns int within range from {@link MenuInputReader#inputStream}
      * @param minValue lower limit including
-     * @param maxValue upper limit not including
+     * @param maxValue upper limit including
      * @return int value within range
      */
     public static int readInteger(int minValue, int maxValue) {
         int input = readInteger();
-        while (input < minValue || input >= maxValue) {
+        while (input < minValue || input > maxValue) {
             System.out.printf("\n Enter a number within the valid range %d - %d\n", minValue, maxValue);
             input = readInteger();
         }
