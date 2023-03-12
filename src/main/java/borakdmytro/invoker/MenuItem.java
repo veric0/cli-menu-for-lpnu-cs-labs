@@ -56,6 +56,10 @@ public class MenuItem {
             this.action = null;
         }
 
+
+        /**
+         * @param text text in menu
+         */
         public MenuItemBuilder setText(String text) {
             this.text = text;
             return this;
