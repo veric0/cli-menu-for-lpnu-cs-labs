@@ -4,13 +4,14 @@ import borakdmytro.invoker.Menu;
 import borakdmytro.invoker.MenuItem;
 import borakdmytro.receiver.AppExample;
 import borakdmytro.receiver.Receiver;
+import borakdmytro.util.MenuIO;
 
 /**
  * Client - entry point. Creates app and menu instances.
  */
 public class Main {
     public static void main(String[] args) {
-        Receiver app = new AppExample();
+        Receiver app = new AppExample(); // Lamp
         Menu menu = Menu.builder()
                 .setApp(app)
                 .setTitle("Main menu")
@@ -52,7 +53,23 @@ public class Main {
                                 .setText("Green")
                                 .setAction(app1 -> app1.setColor("Green"))
                                 .build())
+                        .addMenuItem(MenuItem.builder()
+                                .setText("Custom color")
+                                .setAction(app1 -> {
+                                    MenuIO.write("Input red value:");
+                                    int r = MenuIO.readInteger(0, 255);
+                                    MenuIO.write("Input green value:");
+                                    int g = MenuIO.readInteger(0, 255);
+                                    MenuIO.write("Input blue value:");
+                                    int b = MenuIO.readInteger(0, 255);
+                                    app1.setColor(String.format("rgb(%d, %d, %d)", r, g, b));
+                                })
+                                .build())
                         .addReturnBack()
+                        .build())
+                .addMenuItem(MenuItem.builder()
+                        .setText("View current color")
+                        .setAction(Receiver::viewCurrentColor)
                         .build())
                 .addExitMenu()
                 .build();
