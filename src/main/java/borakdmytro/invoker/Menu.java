@@ -46,10 +46,16 @@ public class Menu extends MenuItem {
             sb.append("\n ").append(++i).append(" - ");
             sb.append(menuItem.getText());
         }
-        System.out.println(sb);
+        MenuIO.write(sb.toString());
         int choice = MenuIO.readInteger(1, menuItems.size()) - 1;
         MenuItem menuItem = menuItems.get(choice);
         menuItem.doAction();
+    }
+
+    @Override
+    protected void setReceiver(Receiver receiver) {
+        menuItems.forEach(menuItem -> menuItem.setReceiver(receiver));
+        super.setReceiver(receiver);
     }
 
     public static MenuBuilder builder() {
@@ -92,7 +98,7 @@ public class Menu extends MenuItem {
 
         @Override
         public MenuBuilder setAction(Command action) {
-            super.setAction(null);
+            super.setAction(null); // todo additional action in submenu
             return this;
         }
 
