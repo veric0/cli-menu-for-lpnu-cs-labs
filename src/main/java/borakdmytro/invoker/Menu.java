@@ -2,7 +2,7 @@ package borakdmytro.invoker;
 
 import borakdmytro.command.Command;
 import borakdmytro.receiver.Receiver;
-import borakdmytro.util.MenuInputReader;
+import borakdmytro.util.MenuIO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +47,7 @@ public class Menu extends MenuItem {
             sb.append(menuItem.getText());
         }
         System.out.println(sb);
-        int choice = MenuInputReader.readInteger(1, menuItems.size()) - 1;
+        int choice = MenuIO.readInteger(1, menuItems.size()) - 1;
         MenuItem menuItem = menuItems.get(choice);
         menuItem.doAction();
     }
@@ -96,6 +96,10 @@ public class Menu extends MenuItem {
             return this;
         }
 
+        /**
+         * Can be not used in the submenu. By default, the app from the parent menu will be used.
+         * @param app app which will perform actions in commands
+         */
         public MenuBuilder setApp(Receiver app) {
             this.app = app;
             return this;
