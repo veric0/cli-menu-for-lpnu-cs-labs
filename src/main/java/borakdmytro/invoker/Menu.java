@@ -2,7 +2,7 @@ package borakdmytro.invoker;
 
 import borakdmytro.command.Command;
 import borakdmytro.receiver.Receiver;
-import borakdmytro.util.MenuInputReader;
+import borakdmytro.util.MenuIO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,11 +13,13 @@ import java.util.List;
 public class Menu extends MenuItem {
     private final List<MenuItem> menuItems;
     private final String title;
+    private final boolean isHasReturnBack;
 
-    private Menu(String title, String text, Receiver app, List<MenuItem> menuItems) {
+    private Menu(String title, String text, Receiver app, List<MenuItem> menuItems, boolean isHasReturnBack) {
         super(text, app, null);
         this.menuItems = menuItems;
         this.title = title;
+        this.isHasReturnBack = isHasReturnBack;
     }
 
     /**
@@ -46,10 +48,16 @@ public class Menu extends MenuItem {
             sb.append("\n ").append(++i).append(" - ");
             sb.append(menuItem.getText());
         }
-        System.out.println(sb);
-        int choice = MenuInputReader.readInteger(1, menuItems.size()) - 1;
+        MenuIO.write(sb.toString());
+        int choice = MenuIO.readInteger(1, menuItems.size()) - 1;
         MenuItem menuItem = menuItems.get(choice);
         menuItem.doAction();
+    }
+
+    @Override
+    protected void setReceiver(Receiver receiver) {
+        menuItems.forEach(menuItem -> menuItem.setReceiver(receiver));
+        super.setReceiver(receiver);
     }
 
     public static MenuBuilder builder() {
@@ -92,10 +100,14 @@ public class Menu extends MenuItem {
 
         @Override
         public MenuBuilder setAction(Command action) {
-            super.setAction(null);
+            super.setAction(null); // todo additional action in submenu
             return this;
         }
 
+        /**
+         * Can be not used in the submenu. By default, the app from the parent menu will be used.
+         * @param app app which will perform actions in commands
+         */
         public MenuBuilder setApp(Receiver app) {
             this.app = app;
             return this;
@@ -122,14 +134,7 @@ public class Menu extends MenuItem {
          */
         @Override
         public Menu build() {
-            Menu menu = new Menu(title, text, app, menuItems);
-            if (isReturnBackMenu) {
-                MenuItem returnBackMenuItem = MenuItem.builder()
-                        .setText("Return back")
-                        .setAction(new ReturnBackCommand(menu)) // todo return back
-                        .build();
-                menuItems.add(returnBackMenuItem);
-            }
+            Menu menu = new Menu(title, text, app, menuItems, isReturnBackMenu);
             if (isExitMenu) {
                 MenuItem exitMenuItem = MenuItem.builder()
                     .setText("Exit")
@@ -137,7 +142,16 @@ public class Menu extends MenuItem {
                     .build();
                 menuItems.add(exitMenuItem);
             }
-            menuItems.forEach(menuItem -> menuItem.setReceiver(app));
+            MenuItem returnBackMenuItem = MenuItem.builder()
+                    .setText("Return back")
+                    .setAction(new ReturnBackCommand(menu))
+                    .build();
+            for (MenuItem menuItem: menuItems) {
+                menuItem.setReceiver(app);
+                if (menuItem.getClass() == menu.getClass() && ((Menu) menuItem).isHasReturnBack) {
+                    ((Menu) menuItem).menuItems.add(returnBackMenuItem);
+                }
+            }
             return menu;
         }
     }
@@ -150,7 +164,6 @@ public class Menu extends MenuItem {
 
         @Override
         public void execute(Receiver app) {
-            System.out.println("ReturnBackCommand"); // todo ReturnBackCommand
             prevMenu.doAction();
         }
     }
