@@ -17,7 +17,7 @@ public class MenuIO {
     public static PrintStream outputStream = System.out;
 
     public static void write(String text) {
-        outputStream.println("\n" + text);
+        outputStream.print("\n" + text);
     }
 
     /**
@@ -112,7 +112,7 @@ public class MenuIO {
      */
     public static String readString() {
         Scanner scanner = new Scanner(inputStream);
-        System.out.print(">>> ");
+        write(">>> ");
         return scanner.nextLine();
     }
 }
